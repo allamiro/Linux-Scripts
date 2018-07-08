@@ -1,2 +1,2 @@
 # Linux-bash-shell-scripts-collection
-Collection of Bash shell script 
+Collection of Bash shell scripts 
