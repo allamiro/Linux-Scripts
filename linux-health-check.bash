@@ -20,6 +20,23 @@ done
 
 ### Check for unapproved interactive accounts
 
+
+
+### Locked Account(S) check
+
+for USER in $(awk -F : '$7 != "/sbin/nologin" {print $1}' /etc/passwd | sort)
+do
+        LOCKED_USER=$(passwd -S $USER | awk -F " " '$2 == "LK" {print $1}')
+        if [ "$LOCKED_USER" ]
+        then
+                CHECK_FLAG=1
+                echo -e "An interactive user account is locked out on $(hostname). \n" >> /tmp/healthCheckReport.txt
+                echo -e "Username: $LOCKED_USER \n" >> /tmp/healthCheckReport.txt
+        fi
+done
+
+
+
 ### DISK MONITORING check
 
 for DISK_UTILIZATION in $(df -H | grep -vE '^Filesystem|tmpfs|cdrom' | awk '{print $5}')
@@ -36,5 +53,9 @@ if [ $CHECK_FLAG = 1 ]
 then
  cat /tmp/healthCheckReport.txt | mail -s "SYSTEM Health Check: $(hostname)" -r "root@$(hostname)" mygroupemail@example.com
 fi
+
+
+
+
 
 
