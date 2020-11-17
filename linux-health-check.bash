@@ -20,7 +20,8 @@ done
 
 ### Check for unapproved interactive accounts
 
-### DISK MONITORING
+### DISK MONITORING check
+
 for DISK_UTILIZATION in $(df -H | grep -vE '^Filesystem|tmpfs|cdrom' | awk '{print $5}')
 do
         if (( $(echo $DISK_UTILIZATION | cut -d '%' -f1) > 90 ))
@@ -29,4 +30,11 @@ do
                 echo "A file systems disk space utilization is at $DISK_UTILIZATION on $(hostname)" >> /tmp/health-check-report_$date.txt
         fi
 done
+
+### Send the report
+if [ $CHECK_FLAG = 1 ]
+then
+ cat /tmp/healthCheckReport.txt | mail -s "SYSTEM Health Check: $(hostname)" -r "root@$(hostname)" mygroupemail@example.com
+fi
+
 
