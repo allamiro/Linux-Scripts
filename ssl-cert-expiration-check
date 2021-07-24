@@ -1,0 +1,79 @@
+#!/bin/bash
+#
+#
+## Date: 07/21/2021
+## Name: Tamir Suliman 
+## Version: 1.0
+
+#################################################################################
+###
+# Logic
+#################################################################################
+###
+# 1. check today's date
+# 2. check the cert expiration date
+# 3. calculate the difference
+# 4. 45 days before the cert expires generate an alert , create a file 1st.
+# 5. 30 days before the cert expires generate the second alert, create a file 2nd.
+# 6. 7 days before the cert expires generate the third alert, create a file 3rd.
+# 7. Cert Renewed - remove the files from step 4 ,5 , and 6.
+#################################################################################
+##
+
+# Requirements:
+## Packages:
+### Mail Command: yum install mailx -y
+### OpenSSL Command: yum install openssl -y
+### Setting up .mailrc file on the server
+
+URL="website"
+PORT="443"
+
+# Certificate Expiration Check Command
+CHK=`echo QUIT| openssl s_client -servername $URL -connect $URL:$PORT 2>/dev/null | openssl x509 -noout -dates | grep notAfter | cut -d "=" -f2 | awk '{print $1, $2, $4}'`
+
+
+#CHK="July 21 2021" # Test variable
+#echo $CHK
+
+date_s=$(date -d "${CHK}" +%s)
+now_s=$(date -d now +%s)
+
+# Calculating the difference
+
+date_diff=$(( (date_s - now_s) / 86400 ))
+#echo $date_diff
+
+
+if [[ $date_diff -ge 31 && $date_diff -le 45 && ! -f /var/log/45daysnotice ]];then
+
+# Sending the alert
+echo "Your SSL Cert will expire in 45 days." | /bin/mail -s " $URL Certificate Check" johndoe@email.com
+# Create the 45 days notice file placeholder - 45 days alert sent
+touch /var/log/45daysnotice
+
+elif [[ $date_diff -ge 8 && $date_diff -le 30 && ! -f /var/log/30daysnotice  ]]
+then
+
+echo "Your SSL Cert will expire in 30 days." | /bin/mail -s " $URL Certificate Check" johndoe@email.com 
+# Create the notice file placeholder - 30 days alert sent
+touch /var/log/30daysnotice
+
+elif [[ $date_diff -ge 1 && $date_diff -le 7 && ! -f /var/log/7daysnotice   ]]
+then
+
+echo  "Your SSL Cert will expire in 7 days." | /bin/mail -s "$URL Certificate Check" johndoe@email.com
+# Create the notice file placeholder - 7 days alert sent
+touch /var/log/7daysnotice
+
+else
+
+# Create the  notexpired file placeholder - Not expired
+touch /var/log/notexpired
+
+# Need  a Better way to manage those files
+rm -f /var/log/7daysnotice
+rm -f /var/log/30daysnotice
+rm -f /var/log/45daysnotice
+fi
+
