@@ -1,5 +1,23 @@
 #!/bin/bash
 
+adiscon_repo() {
+  # Remove the default rsyslog
+  yum remove -y rsyslog
+
+  # Add Adiscon repository
+cat > /etc/yum.repos.d/adiscon.repo << EOF
+[Adiscon]
+name=Adiscon CentOS-\$releasever - local packages for \$basearch
+baseurl=http://rpms.adiscon.com/v8-stable/epel-\$releasever/\$basearch
+enabled=1
+gpgcheck=0
+EOF
+
+ 
+  yum install -y rsyslog
+}
+
+adiscon_repo
 
 detect_new_disk() {
   for disk in /sys/block/sd*; do
