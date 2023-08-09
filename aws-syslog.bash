@@ -37,6 +37,7 @@ create_lvm() {
   mkdir -p /mnt/mylv
   mount /dev/myvg/mylv /mnt/mylv || { echo "Failed to mount logical volume."; exit 1; }
   echo '/dev/myvg/mylv /mnt/mylv xfs defaults 0 0' >> /etc/fstab
+  mkdir -p /mnt/mylv/aws-syslog/{data,move,queue,bin}
 }
 
 detect_new_disk
