@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Function to detect new disk
+
 detect_new_disk() {
   for disk in /sys/block/sd*; do
     if ! grep -q "${disk##*/}" /etc/mtab; then
@@ -10,7 +10,7 @@ detect_new_disk() {
   done
 }
 
-# Function to create LVM and format with XFS
+
 create_lvm() {
   pvcreate "$DISK" || { echo "Failed to create physical volume."; exit 1; }
   vgcreate myvg "$DISK" || { echo "Failed to create volume group."; exit 1; }
