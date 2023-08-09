@@ -14,7 +14,7 @@ gpgcheck=0
 EOF
 
  
-  yum install -y rsyslog
+  yum install -y rsyslog rsyslog-*  adisconbuild-*
 }
 
 adiscon_repo
