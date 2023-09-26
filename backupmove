@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Directories to back up
+DIRS=("/data/linux" "/data/f5" "/data/ios")
+BACKUP_DIR="/backup/syslogdata"
+EMAIL_RECIPIENT="admin@example.com" # Replace with the actual email address of the admin
+
+# Loop over each directory to back up
+for DIR in "${DIRS[@]}"; do
+    FOLDER_NAME=$(basename "$DIR")
+    TIMESTAMP=$(date +"%Y-%m-%d-%H-%M")
+    BACKUP_FILE="$BACKUP_DIR/$FOLDER_NAME-$TIMESTAMP.tar.gz"
+    RECORD_FILE="$BACKUP_DIR/$FOLDER_NAME-$TIMESTAMP-record.txt"
+    
+    # Find and copy files older than 7 days to the backup directory and generate sha256 hash for each file
+    find "$DIR" -type f -name "*.log" -ctime +7 -exec bash -c 'FILE="$1"; cp --parents "$FILE" "$2"; echo "$FILE $(sha256sum "$FILE")"' _ '{}' "$BACKUP_DIR" \; > "$RECORD_FILE"
+    
+    # Tar and gzip the copied files along with their sha256 text files
+    tar -czf "$BACKUP_FILE" -C "$BACKUP_DIR" "$(basename "$DIR")" && rm -r "$BACKUP_DIR/$(basename "$DIR")"
+    
+    # Send an email notification once the backup is done
+    echo -e "Backup Job Completed for $DIR\nBackup File: $BACKUP_FILE\nProcessed Files and Their Hashes: $RECORD_FILE" | mail -s "Backup Job Completed: $FOLDER_NAME-$TIMESTAMP" "$EMAIL_RECIPIENT"
+done
