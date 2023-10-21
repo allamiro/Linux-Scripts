@@ -2,7 +2,7 @@
 
 # Author: Tamir Suliman
 # Script inspired by the chrony.py
-
+# text_exporter  node_exporter for ntp clients data 
 
 # Extract chronyc tracking data and write it to a Prometheus text file collector
 
