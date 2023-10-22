@@ -4,8 +4,6 @@
 # Script inspired by the chrony.py
 # text_exporter  node_exporter for ntp clients data 
 
-
-
 # Run chronyc to get tracking data and store it in a variable
 tracking_data=$(chronyc tracking)
 
